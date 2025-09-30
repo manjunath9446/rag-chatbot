@@ -1,7 +1,8 @@
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-from langchain.cache import InMemoryCache
+# This import line is now updated
+from langchain_community.cache import InMemoryCache 
 from langchain.globals import set_llm_cache
 
 set_llm_cache(InMemoryCache())
