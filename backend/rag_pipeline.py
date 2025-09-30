@@ -7,8 +7,15 @@ from langchain.globals import set_llm_cache
 set_llm_cache(InMemoryCache())
 
 def create_rag_pipeline(vectorstore, groq_api_key: str):
-    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+    # The model_name has been updated to a new, supported model
+    llm = ChatGroq(
+        temperature=0, 
+        groq_api_key=groq_api_key, 
+        model_name="llama-3.1-8b-instant"
+    )
+
     retriever = vectorstore.as_retriever(search_kwargs={'k': 3})
+    
     prompt_template = """
     Use the following context to answer the question. If you don't know the answer, say you don't know.
     Context: {context}
@@ -16,6 +23,7 @@ def create_rag_pipeline(vectorstore, groq_api_key: str):
     Answer:
     """
     PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+    
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",

@@ -15,7 +15,6 @@ UPLOAD_DIR = "uploaded_files"
 VECTORSTORE_PATH = "vectorstore.pkl"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# Global variable to hold the RAG chain
 rag_chain = None
 
 def initialize_rag_chain():
@@ -36,7 +35,6 @@ def initialize_rag_chain():
 def upload_files():
     global rag_chain
     
-    # Clear previous uploads
     if os.path.exists(UPLOAD_DIR):
         shutil.rmtree(UPLOAD_DIR)
     os.makedirs(UPLOAD_DIR)
@@ -54,10 +52,7 @@ def upload_files():
             file.save(os.path.join(UPLOAD_DIR, filename))
     
     try:
-        # Process new files and create a new vector store
         vectorstore = process_and_store_documents(UPLOAD_DIR, VECTORSTORE_PATH)
-        
-        # Re-initialize the RAG chain with the new vector store
         groq_api_key = os.environ.get("GROQ_API_KEY")
         rag_chain = create_rag_pipeline(vectorstore, groq_api_key)
         
@@ -86,5 +81,5 @@ def query_endpoint():
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    initialize_rag_chain() # Initialize on startup if a vectorstore already exists
+    initialize_rag_chain()
     app.run(host='0.0.0.0', port=5000)
