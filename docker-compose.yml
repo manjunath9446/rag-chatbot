@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    container_name: rag-hr-chatbot-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/vectorstore.pkl:/app/vectorstore.pkl
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: rag-hr-chatbot-frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    restart: unless-stopped

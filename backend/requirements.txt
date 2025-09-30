@@ -1,0 +1,8 @@
+Flask
+Flask-Cors
+PyPDF2
+langchain
+langchain-groq
+faiss-cpu
+sentence-transformers
+python-dotenv

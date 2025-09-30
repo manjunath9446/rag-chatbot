@@ -1,0 +1,16 @@
+# Environments
+.env
+.venv
+venv/
+env/
+
+# Cache and compiled files
+__pycache__/
+*.pyc
+
+# Vectorstore
+vectorstore.pkl
+
+# IDE files
+.idea/
+.vscode/
