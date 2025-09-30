@@ -71,7 +71,7 @@ def query_endpoint():
         return jsonify({"error": "Query text is required."}), 400
         
     try:
-        result = rag_chain({"query": query_text})
+        result = rag_chain.invoke({"query": query_text})
         response = {
             "answer": result["result"],
             "sources": [doc.page_content for doc in result["source_documents"]]

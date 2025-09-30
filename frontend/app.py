@@ -1,19 +1,18 @@
 import streamlit as st
 import requests
+import os
 
-# --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="HR Chatbot", page_icon="🤖", layout="wide")
 
-# --- BACKEND API URLS ---
-UPLOAD_URL = "http://backend:5000/upload"
-QUERY_URL = "http://backend:5000/query"
+BACKEND_URL = os.getenv("BACKEND_API_URL", "http://backend:5000")
+UPLOAD_URL = f"{BACKEND_URL}/upload"
+QUERY_URL = f"{BACKEND_URL}/query"
 
-# --- SIDEBAR FOR FILE UPLOAD ---
 with st.sidebar:
     st.header("Upload Documents")
     uploaded_files = st.file_uploader(
-        "Upload your HR policy PDF files here", 
-        type="pdf", 
+        "Upload your HR policy PDF files here",
+        type="pdf",
         accept_multiple_files=True
     )
 
@@ -25,7 +24,7 @@ with st.sidebar:
                     response = requests.post(UPLOAD_URL, files=files_to_send)
                     if response.status_code == 200:
                         st.success("Documents processed successfully! You can now ask questions.")
-                        st.session_state.messages = [] # Clear chat history
+                        st.session_state.messages = []
                     else:
                         st.error(f"Error: {response.json().get('error')}")
                 except requests.exceptions.RequestException as e:
@@ -33,7 +32,6 @@ with st.sidebar:
         else:
             st.warning("Please upload at least one PDF file.")
 
-# --- MAIN CHAT INTERFACE ---
 st.title("HR Policy Chatbot 🤖")
 st.write("Upload your HR documents in the sidebar, process them, and then ask me anything!")
 
@@ -57,7 +55,7 @@ if prompt := st.chat_input("Ask a question about the uploaded policies"):
                 result = response.json()
                 answer = result.get("answer", "I couldn't find an answer.")
                 message_placeholder.markdown(answer)
-                
+
                 sources = result.get("sources", [])
                 if sources:
                     with st.expander("View Sources"):

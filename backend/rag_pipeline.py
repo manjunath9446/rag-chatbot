@@ -1,34 +1,29 @@
-from langchain_groq import ChatGroq
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
-from langchain.cache import InMemoryCache
-from langchain.globals import set_llm_cache
+import os
+import pickle
+from PyPDF2 import PdfReader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.vectorstores.faiss import FAISS
 
-set_llm_cache(InMemoryCache())
+def process_and_store_documents(upload_dir, vectorstore_path="vectorstore.pkl"):
+    doc_texts = []
+    for file_name in os.listdir(upload_dir):
+        if file_name.endswith('.pdf'):
+            pdf_path = os.path.join(upload_dir, file_name)
+            pdf_reader = PdfReader(pdf_path)
+            text = "".join(page.extract_text() or "" for page in pdf_reader.pages)
+            doc_texts.append(text)
 
-def create_rag_pipeline(vectorstore, groq_api_key: str):
-    # The model_name has been updated to a new, supported model
-    llm = ChatGroq(
-        temperature=0, 
-        groq_api_key=groq_api_key, 
-        model_name="llama-3.1-8b-instant"
-    )
+    if not doc_texts:
+        raise ValueError("No PDF documents found in the specified directory.")
 
-    retriever = vectorstore.as_retriever(search_kwargs={'k': 3})
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
+    texts = text_splitter.split_text("\n\n".join(doc_texts))
     
-    prompt_template = """
-    Use the following context to answer the question. If you don't know the answer, say you don't know.
-    Context: {context}
-    Question: {question}
-    Answer:
-    """
-    PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    vectorstore = FAISS.from_texts(texts, embedding=embeddings)
     
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": PROMPT}
-    )
-    return qa_chain
+    with open(vectorstore_path, "wb") as f:
+        pickle.dump(vectorstore, f)
+        
+    return vectorstore

@@ -2,7 +2,6 @@ import os
 import pickle
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-# This import line is now updated to the new package
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores.faiss import FAISS
 
