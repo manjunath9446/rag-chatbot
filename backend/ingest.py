@@ -3,7 +3,8 @@ import pickle
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores.faiss import FAISS
+# This import line is now updated
+from langchain_community.vectorstores import FAISS
 
 def process_and_store_documents(upload_dir, vectorstore_path="vectorstore.pkl"):
     doc_texts = []
